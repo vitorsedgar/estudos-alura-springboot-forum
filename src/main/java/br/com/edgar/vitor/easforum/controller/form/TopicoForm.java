@@ -14,13 +14,14 @@ public class TopicoForm {
     @NotEmpty
     @Length(min = 5)
     private String titulo;
+
     @NotNull
     @NotEmpty
-    @Length(min = 5)
+    @Length(min = 10)
     private String mensagem;
+
     @NotNull
     @NotEmpty
-    @Length(min = 5)
     private String nomeCurso;
 
     public String getTitulo() {
@@ -51,4 +52,5 @@ public class TopicoForm {
         Curso curso = cursoRepository.findByNome(nomeCurso);
         return new Topico(titulo, mensagem, curso);
     }
+
 }

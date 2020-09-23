@@ -3,18 +3,19 @@ package br.com.edgar.vitor.easforum.config.validacao;
 public class ErroDeFormularioDto {
 
     private String campo;
-    private String mensagem;
+    private String erro;
 
-    public ErroDeFormularioDto(String campo, String mensagem) {
+    public ErroDeFormularioDto(String campo, String erro) {
         this.campo = campo;
-        this.mensagem = mensagem;
+        this.erro = erro;
     }
 
     public String getCampo() {
         return campo;
     }
 
-    public String getMensagem() {
-        return mensagem;
+    public String getErro() {
+        return erro;
     }
+
 }

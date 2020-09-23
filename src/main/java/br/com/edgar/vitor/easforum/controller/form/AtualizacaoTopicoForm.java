@@ -1,4 +1,4 @@
-package br.com.edgar.vitor.easforum.controller;
+package br.com.edgar.vitor.easforum.controller.form;
 
 import br.com.edgar.vitor.easforum.modelo.Topico;
 import br.com.edgar.vitor.easforum.repository.TopicoRepository;
@@ -13,9 +13,10 @@ public class AtualizacaoTopicoForm {
     @NotEmpty
     @Length(min = 5)
     private String titulo;
+
     @NotNull
     @NotEmpty
-    @Length(min = 5)
+    @Length(min = 10)
     private String mensagem;
 
     public String getTitulo() {
@@ -36,9 +37,11 @@ public class AtualizacaoTopicoForm {
 
     public Topico atualizar(Long id, TopicoRepository topicoRepository) {
         Topico topico = topicoRepository.getOne(id);
+
         topico.setTitulo(this.titulo);
         topico.setMensagem(this.mensagem);
 
         return topico;
     }
+
 }

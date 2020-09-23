@@ -56,4 +56,5 @@ public class DetalhesDoTopicoDto {
     public List<RespostaDto> getRespostas() {
         return respostas;
     }
+
 }
