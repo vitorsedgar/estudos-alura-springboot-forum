@@ -8,10 +8,11 @@ import br.com.edgar.vitor.easforum.modelo.Topico;
 import br.com.edgar.vitor.easforum.repository.CursoRepository;
 import br.com.edgar.vitor.easforum.repository.TopicoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,6 +30,8 @@ import javax.validation.Valid;
 import java.net.URI;
 import java.util.Optional;
 
+import static org.springframework.data.domain.Sort.Direction;
+
 @RestController
 @RequestMapping("/topicos")
 public class TopicosController {
@@ -40,12 +43,9 @@ public class TopicosController {
     private CursoRepository cursoRepository;
 
     @GetMapping
+    @Cacheable(value = "listaDeTopicos")
     public Page<TopicoDto> lista(@RequestParam(required = false) String nomeCurso,
-                                 @RequestParam(required = false) int pagina,
-                                 @RequestParam(required = false) int qtd,
-                                 @RequestParam(required = false) String ordenacao) {
-
-        Pageable paginacao = PageRequest.of(pagina, qtd, Sort.Direction.ASC, ordenacao);
+                                 @PageableDefault(sort = "id", direction = Direction.DESC) Pageable paginacao) {
 
         Page<Topico> topicos;
         if (nomeCurso == null) {
@@ -58,6 +58,7 @@ public class TopicosController {
 
     @PostMapping
     @Transactional
+    @CacheEvict(value = "listaDeTopicos", allEntries = true)
     public ResponseEntity<TopicoDto> cadastrar(@RequestBody @Valid TopicoForm form, UriComponentsBuilder uriBuilder) {
         Topico topico = form.converter(cursoRepository);
         topicoRepository.save(topico);
@@ -78,6 +79,7 @@ public class TopicosController {
 
     @PutMapping("/{id}")
     @Transactional
+    @CacheEvict(value = "listaDeTopicos", allEntries = true)
     public ResponseEntity<TopicoDto> atualizar(@PathVariable Long id, @RequestBody @Valid AtualizacaoTopicoForm form) {
         Optional<Topico> optional = topicoRepository.findById(id);
         if (optional.isPresent()) {
@@ -90,6 +92,7 @@ public class TopicosController {
 
     @DeleteMapping("/{id}")
     @Transactional
+    @CacheEvict(value = "listaDeTopicos", allEntries = true)
     public ResponseEntity<?> remover(@PathVariable Long id) {
         Optional<Topico> optional = topicoRepository.findById(id);
         if (optional.isPresent()) {
