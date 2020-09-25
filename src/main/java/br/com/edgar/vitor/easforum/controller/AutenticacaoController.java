@@ -21,7 +21,7 @@ import javax.validation.Valid;
 public class AutenticacaoController {
 
     @Autowired
-    private AuthenticationManager authenticationManager;
+    private AuthenticationManager authManager;
 
     @Autowired
     private TokenService tokenService;
@@ -31,13 +31,12 @@ public class AutenticacaoController {
         UsernamePasswordAuthenticationToken dadosLogin = form.converter();
 
         try {
-            Authentication authentication = authenticationManager.authenticate(dadosLogin);
+            Authentication authentication = authManager.authenticate(dadosLogin);
             String token = tokenService.gerarToken(authentication);
             return ResponseEntity.ok(new TokenDto(token, "Bearer"));
         } catch (AuthenticationException e) {
             return ResponseEntity.badRequest().build();
         }
-
     }
 
 }

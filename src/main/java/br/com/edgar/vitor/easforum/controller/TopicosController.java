@@ -45,15 +45,15 @@ public class TopicosController {
     @GetMapping
     @Cacheable(value = "listaDeTopicos")
     public Page<TopicoDto> lista(@RequestParam(required = false) String nomeCurso,
-                                 @PageableDefault(sort = "id", direction = Direction.DESC) Pageable paginacao) {
+                                 @PageableDefault(sort = "dataCriacao", direction = Direction.DESC, page = 0, size = 10) Pageable paginacao) {
 
-        Page<Topico> topicos;
         if (nomeCurso == null) {
-            topicos = topicoRepository.findAll(paginacao);
+            Page<Topico> topicos = topicoRepository.findAll(paginacao);
+            return TopicoDto.converter(topicos);
         } else {
-            topicos = topicoRepository.findByCursoNome(nomeCurso, paginacao);
+            Page<Topico> topicos = topicoRepository.findByCursoNome(nomeCurso, paginacao);
+            return TopicoDto.converter(topicos);
         }
-        return TopicoDto.converter(topicos);
     }
 
     @PostMapping

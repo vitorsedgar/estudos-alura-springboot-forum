@@ -3,9 +3,7 @@ package br.com.edgar.vitor.easforum.config.security;
 import br.com.edgar.vitor.easforum.modelo.Usuario;
 import br.com.edgar.vitor.easforum.repository.UsuarioRepository;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
@@ -17,41 +15,40 @@ import java.io.IOException;
 public class AutenticacaoViaTokenFilter extends OncePerRequestFilter {
 
     private TokenService tokenService;
+    private UsuarioRepository repository;
 
-    private UsuarioRepository usuarioRepository;
-
-    public AutenticacaoViaTokenFilter(TokenService tokenService, UsuarioRepository usuarioRepository) {
+    public AutenticacaoViaTokenFilter(TokenService tokenService, UsuarioRepository repository) {
         this.tokenService = tokenService;
-        this.usuarioRepository = usuarioRepository;
+        this.repository = repository;
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+            throws ServletException, IOException {
 
-        String token = recuperarToken(httpServletRequest);
+        String token = recuperarToken(request);
         boolean valido = tokenService.isTokenValido(token);
-
         if (valido) {
             autenticarCliente(token);
         }
 
-        filterChain.doFilter(httpServletRequest, httpServletResponse);
+        filterChain.doFilter(request, response);
     }
 
     private void autenticarCliente(String token) {
         Long idUsuario = tokenService.getIdUsuario(token);
-        Usuario usuario = usuarioRepository.findById(idUsuario).get();
-        Authentication authenticantion = new UsernamePasswordAuthenticationToken(usuario, null, usuario.getAuthorities());
-        SecurityContextHolder.getContext().setAuthentication(authenticantion);
+        Usuario usuario = repository.findById(idUsuario).get();
+        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(usuario, null, usuario.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
-    private String recuperarToken(HttpServletRequest httpServletRequest) {
-        String token = httpServletRequest.getHeader("Authorization");
-        if (StringUtils.isEmpty(token) || !token.startsWith("Bearer")) {
+    private String recuperarToken(HttpServletRequest request) {
+        String token = request.getHeader("Authorization");
+        if (token == null || token.isEmpty() || !token.startsWith("Bearer ")) {
             return null;
         }
 
-        return token.substring(7);
+        return token.substring(7, token.length());
     }
 
 }
